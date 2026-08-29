@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Studio - Generador Avanzado</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .video-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .type-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border: 2px solid transparent;
+            position: relative;
+        }
+
+        .type-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+            border-color: #667eea;
+        }
+
+        .type-card.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #764ba2;
+        }
+
+        .type-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        .type-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .type-description {
+            font-size: 0.95em;
+            line-height: 1.5;
+            margin-bottom: 15px;
+            opacity: 0.8;
+        }
+
+        .type-features {
+            list-style: none;
+            font-size: 0.9em;
+        }
+
+        .type-features li {
+            padding: 5px 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .type-features li:before {
+            content: "✓ ";
+            margin-right: 8px;
+            font-weight: bold;
+        }
+
+        .type-card.active .type-features li:before {
+            content: "✓ ";
+            color: #FFD700;
+        }
+
+        .form-container {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .form-section {
+            margin-bottom: 35px;
+        }
+
+        .form-section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 1em;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="file"],
+        textarea,
+        select,
+        input[type="range"] {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        input[type="file"]:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        input[type="range"] {
+            padding: 0;
+            border: none;
+        }
+
+        .range-value {
+            font-weight: 600;
+            color: #667eea;
+            margin-top: 5px;
+        }
+
+        .checkbox-group, .radio-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .checkbox-item, .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .checkbox-item input[type="checkbox"],
+        .radio-item input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .checkbox-item label,
+        .radio-item label {
+            margin: 0;
+            cursor: pointer;
+            font-weight: 400;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-generate {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .btn-generate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-reset {
+            background: #f0f0f0;
+            color: #333;
+            flex: 0;
+        }
+
+        .btn-reset:hover {
+            background: #e0e0e0;
+        }
+
+        .status {
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+            font-weight: 500;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+
+        .status.info {
+            background: #cfe2ff;
+            color: #084298;
+            border: 1px solid #b6d4fe;
+            display: block;
+        }
+
+        .preview-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .preview-section.active {
+            display: block;
+        }
+
+        .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .preview-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .preview-item img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .help-text {
+            font-size: 0.85em;
+            color: #666;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        .collapsible-section {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .collapsible-header {
+            padding: 15px;
+            background: #f8f9fa;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .collapsible-header:hover {
+            background: #e9ecef;
+        }
+
+        .collapsible-content {
+            display: none;
+            padding: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .collapsible-content.active {
+            display: block;
+        }
+
+        .collapsible-toggle {
+            transition: transform 0.3s;
+        }
+
+        .collapsible-toggle.active {
+            transform: rotate(180deg);
+        }
+
+        @media (max-width: 768px) {
+            .video-types {
+                grid-template-columns: 1fr;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎥 Video Studio Avanzado</h1>
+            <p>Crea cualquier tipo de video con IA - Anime, Trailers, Presentaciones y más</p>
+        </div>
+
+        <!-- Selector de Tipo de Video -->
+        <div class="video-types">
+            <div class="type-card active" onclick="selectType('anime')">
+                <div class="type-icon">🎬</div>
+                <div class="type-title">Video Anime</div>
+                <div class="type-description">Crea videos estilo anime con personajes y efectos</div>
+                <ul class="type-features">
+                    <li>Múltiples estilos</li>
+                    <li>Personajes animados</li>
+                    <li>Sincronización de audio</li>
+                    <li>Efectos especiales</li>
+                </ul>
+            </div>
+
+            <div class="type-card" onclick="selectType('trailer')">
+                <div class="type-icon">🍿</div>
+                <div class="type-title">Trailer/Teasers</div>
+                <div class="type-description">Crea trailers cinematográficos emocionantes</div>
+                <ul class="type-features">
+                    <li>Montaje dinámico</li>
+                    <li>Efectos de cine</li>
+                    <li>Texto y títulos</li>
+                    <li>Transiciones épicas</li>
+                </ul>
+            </div>
+
+            <div class="type-card" onclick="selectType('slideshow')">
+                <div class="type-icon">📸</div>
+                <div class="type-title">Slideshow/Presentación</div>
+                <div class="type-description">Convierte fotos en videos profesionales</div>
+                <ul class="type-features">
+                    <li>Transiciones suaves</li>
+                    <li>Zoom y movimiento</li>
+                    <li>Múltiples layouts</li>
+                    <li>Texto dinámico</li>
+                </ul>
+            </div>
+
+            <div class="type-card" onclick="selectType('lyricvideo')">
+                <div class="type-icon">🎵</div>
+                <div class="type-title">Lyric Video</div>
+                <div class="type-description">Sincroniza letras con la canción</div>
+                <ul class="type-features">
+                    <li>Sincronización automática</li>
+                    <li>Animaciones de texto</li>
+                    <li>Fondos dinámicos</li>
+                    <li>Estilos personalizados</li>
+                </ul>
+            </div>
+
+            <div class="type-card" onclick="selectType('amv')">
+                <div class="type-icon">🎭</div>
+                <div class="type-title">AMV (Anime Music Video)</div>
+                <div class="type-description">Edita clips de anime con música</div>
+                <ul class="type-features">
+                    <li>Edición de clips</li>
+                    <li>Sincronización de ritmo</li>
+                    <li>Efectos y transiciones</li>
+                    <li>Compilación automática</li>
+                </ul>
+            </div>
+
+            <div class="type-card" onclick="selectType('gaming')">
+                <div class="type-icon">🎮</div>
+                <div class="type-title">Gaming Montage</div>
+                <div class="type-description">Monta videos de gameplay épicos</div>
+                <ul class="type-features">
+                    <li>Sincronización con ritmo</li>
+                    <li>Overlays dinámicos</li>
+                    <li>Highlights automáticos</li>
+                    <li>Watermarks</li>
+                </ul>
+            </div>
+
+            <div class="type-card" onclick="selectType('tutorial')">
+                <div class="type-icon">📚</div>
+                <div class="type-title">Tutorial/Educativo</div>
+                <div class="type-description">Crea tutoriales interactivos</div>
+                <ul class="type-features">
+                    <li>Pantalla compartida</li>
+                    <li>Anotaciones</li>
+                    <li>Zoom en regiones</li>
+                    <li>Subtítulos automáticos</li>
+                </ul>
+            </div>
+
+            <div class="type-card" onclick="selectType('promo')">
+                <div class="type-icon">📢</div>
+                <div class="type-title">Promo/Publicidad</div>
+                <div class="type-description">Videos publicitarios profesionales</div>
+                <ul class="type-features">
+                    <li>Branding integrado</li>
+                    <li>Texto 3D</li>
+                    <li>Efectos premium</li>
+                    <li>Call-to-action</li>
+                </ul>
+            </div>
+
+            <div class="type-card" onclick="selectType('vlog')">
+                <div class="type-icon">📹</div>
+                <div class="type-title">Vlog/Diario</div>
+                <div class="type-description">Edita vídeos de vlog profesionales</div>
+                <ul class="type-features">
+                    <li>Transiciones suave</li>
+                    <li>Música de fondo</li>
+                    <li>Efectos personales</li>
+                    <li>Color grading</li>
+                </ul>
+            </div>
+
+            <div class="type-card" onclick="selectType('motion')">
+                <div class="type-icon">✨</div>
+                <div class="type-title">Motion Graphics</div>
+                <div class="type-description">Animaciones y gráficos en movimiento</div>
+                <ul class="type-features">
+                    <li>Animaciones 2D/3D</li>
+                    <li>Partículas</li>
+                    <li>Texto animado</li>
+                    <li>Diseños vectoriales</li>
+                </ul>
+            </div>
+
+            <div class="type-card" onclick="selectType('intro')">
+                <div class="type-icon">🎪</div>
+                <div class="type-title">Intro/Outro</div>
+                <div class="type-description">Crea intros y outros para videos</div>
+                <ul class="type-features">
+                    <li>Efectos cinemáticos</li>
+                    <li>Logo animation</li>
+                    <li>Transiciones suave</li>
+                    <li>Audio sincronizado</li>
+                </ul>
+            </div>
+
+            <div class="type-card" onclick="selectType('cover')">
+                <div class="type-icon">🎸</div>
+                <div class="type-title">Cover/Remix Video</div>
+                <div class="type-description">Visualización para covers musicales</div>
+                <ul class="type-features">
+                    <li>Reacción en tiempo real</li>
+                    <li>Ondas de sonido</li>
+                    <li>Lyrics sincronizadas</li>
+                    <li>Efectos visuales</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Formulario Principal -->
+        <div class="form-container">
+            <form id="videoForm">
+                <!-- Sección Básica -->
+                <div class="form-section">
+                    <h2>📝 Información Básica</h2>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="videoTitle">Título del Video</label>
+                            <input type="text" id="videoTitle" name="videoTitle" placeholder="Ej: Mi Primer Anime Video" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="description">Descripción</label>
+                            <textarea id="description" name="description" placeholder="Describe el contenido de tu video..." required></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sección de Audio -->
+                <div class="form-section">
+                    <h2>🎵 Audio</h2>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="songSearch">Buscar Canción</label>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="text" id="songSearch" placeholder="Escribe nombre de canción o artista">
+                                <button type="button" class="btn-small" onclick="searchSongs()" style="padding: 12px 20px;">🔍</button>
+                            </div>
+                            <div id="searchResults" class="preview-section" style="margin-top: 10px;">
+                                <div id="resultsList"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sección de Estilos (Dinámica según tipo) -->
+                <div class="form-section" id="styleSection">
+                    <h2>🎨 Estilo y Efectos</h2>
+                    <div class="form-grid" id="styleOptions"></div>
+                </div>
+
+                <!-- Sección de Contenido (Dinámica según tipo) -->
+                <div class="form-section" id="contentSection" style="display: none;">
+                    <h2>📂 Contenido</h2>
+                    <div class="form-grid" id="contentOptions"></div>
+                </div>
+
+                <!-- Sección de Configuración de Calidad -->
+                <div class="form-section">
+                    <h2>⚙️ Configuración de Calidad</h2>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="quality">Resolución</label>
+                            <select id="quality" required>
+                                <option value="480p">480p (Rápido)</option>
+                                <option value="720p" selected>720p (Recomendado)</option>
+                                <option value="1080p">1080p (Mejor)</option>
+                                <option value="4k">4K (Muy lento)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="fps">FPS</label>
+                            <select id="fps" required>
+                                <option value="24">24 FPS (Cine)</option>
+                                <option value="30" selected>30 FPS (Estándar)</option>
+                                <option value="60">60 FPS (Suave)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="duration">Duración Máxima</label>
+                            <select id="duration" required>
+                                <option value="auto" selected>Automática</option>
+                                <option value="30">30 segundos</option>
+                                <option value="60">1 minuto</option>
+                                <option value="120">2 minutos</option>
+                                <option value="300">5 minutos</option>
+                                <option value="600">10 minutos</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="format">Formato de Salida</label>
+                            <select id="format" required>
+                                <option value="mp4" selected>MP4 (Universal)</option>
+                                <option value="webm">WebM (Web)</option>
+                                <option value="mov">MOV (Mac)</option>
+                                <option value="avi">AVI (Windows)</option>
+                                <option value="gif">GIF (Animado)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sección Avanzada -->
+                <div class="collapsible-section">
+                    <div class="collapsible-header" onclick="toggleCollapsible(event)">
+                        ⚡ Opciones Avanzadas
+                        <span class="collapsible-toggle">▼</span>
+                    </div>
+                    <div class="collapsible-content">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="colorGrading">Color Grading</label>
+                                <select id="colorGrading">
+                                    <option value="none">Sin cambios</option>
+                                    <option value="warm">Cálido</option>
+                                    <option value="cool">Frío</option>
+                                    <option value="vintage">Vintage</option>
+                                    <option value="highcontrast">Alto contraste</option>
+                                    <option value="desaturated">Desaturado</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="brightness">Brillo</label>
+                                <input type="range" id="brightness" min="-100" max="100" value="0">
+                                <div class="range-value" id="brightnessValue">0%</div>
+                            </div>
+                            <div class="form-group">
+                                <label for="saturation">Saturación</label>
+                                <input type="range" id="saturation" min="-100" max="100" value="0">
+                                <div class="range-value" id="saturationValue">0%</div>
+                            </div>
+                            <div class="form-group">
+                                <label for="contrast">Contraste</label>
+                                <input type="range" id="contrast" min="-100" max="100" value="0">
+                                <div class="range-value" id="contrastValue">0%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botones -->
+                <div class="button-group">
+                    <button type="submit" class="btn-generate">🚀 Generar Video</button>
+                    <button type="reset" class="btn-reset">🔄 Limpiar</button>
+                </div>
+
+                <div id="status" class="status"></div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let selectedType = 'anime';
+        const videoTypeConfigs = {
+            anime: {
+                styles: ['Shounen', 'Shoujo', 'Seinen', 'Cyberpunk', 'Fantasy', 'School', 'Aesthetic', 'Isekai'],
+                effects: ['Motion Blur', 'Particles', 'Bloom', 'Glitch', 'Chromatic Aberration'],
+                content: null
+            },
+            trailer: {
+                styles: ['Action', 'Drama', 'Horror', 'Comedy', 'Thriller'],
+                effects: ['Cinematic Cuts', 'Impact Frames', 'Sound Design', 'Color Grading'],
+                content: ['Video Clips', 'Text Overlay', 'Logo', 'Music']
+            },
+            slideshow: {
+                styles: ['Classic', 'Modern', 'Elegant', 'Fun', 'Romantic'],
+                effects: ['Ken Burns', 'Fade', 'Slide', 'Zoom', 'Parallax'],
+                content: ['Photos', 'Captions', 'Titles', 'Music']
+            },
+            lyricvideo: {
+                styles: ['Pop', 'Rock', 'Rap', 'Indie', 'Electronic'],
+                effects: ['Lyric Animation', 'Sync to Beat', 'Color Change', 'Effects'],
+                content: ['Background Video', 'Lyrics', 'Artist Info', 'Subtitles']
+            },
+            amv: {
+                styles: ['Action', 'Romance', 'Comedy', 'Emotional', 'Montage'],
+                effects: ['Clip Sync', 'Beat Drop', 'Transition', 'Color Match'],
+                content: ['Video Source', 'Clips Selection', 'Timing', 'Effects']
+            },
+            gaming: {
+                styles: ['FPS', 'RPG', 'Sports', 'MOBA', 'Puzzle'],
+                effects: ['Slow Motion', 'Freeze Frame', 'Highlight Zoom', 'Counter'],
+                content: ['Gameplay Video', 'Overlay', 'Highlights', 'Text/Emotes']
+            },
+            tutorial: {
+                styles: ['Minimalist', 'Professional', 'Friendly', 'Technical'],
+                effects: ['Screen Zoom', 'Pointer Highlight', 'Annotations', 'Pan & Scan'],
+                content: ['Screen Recording', 'Voiceover', 'Captions', 'Screenshots']
+            },
+            promo: {
+                styles: ['Corporate', 'Creative', 'Playful', 'Premium', 'Minimalist'],
+                effects: ['3D Text', 'Product Showcase', 'Transitions', 'Logo Animation'],
+                content: ['Product Images', 'CTA Button', 'Company Logo', 'Brand Colors']
+            },
+            vlog: {
+                styles: ['Casual', 'Cinematic', 'Vaporwave', 'Comedy', 'Daily'],
+                effects: ['Jump Cuts', 'Transitions', 'Stickers', 'Text Overlay'],
+                content: ['Clips', 'Music', 'Intros', 'Outros']
+            },
+            motion: {
+                styles: ['3D', '2D', 'Particle', 'Kinetic', 'Abstract'],
+                effects: ['Shape Animation', 'Text Effects', 'Transitions', 'Layering'],
+                content: ['Design Elements', 'Colors', 'Fonts', 'Music Sync']
+            },
+            intro: {
+                styles: ['Professional', 'Gaming', 'Creative', 'Minimal', 'Epic'],
+                effects: ['Logo Reveal', 'Text Entrance', 'Particles', 'Light Effects'],
+                content: ['Logo', 'Channel Name', 'Music', 'Duration']
+            },
+            cover: {
+                styles: ['Acoustic', 'Electric', 'Orchestra', 'Modern', 'Classic'],
+                effects: ['Waveform', 'Lyrics Sync', 'Visual Effects', 'Artist Showcase'],
+                content: ['Artist Video', 'Lyrics', 'Original Credit', 'Visuals']
+            }
+        };
+
+        function selectType(type) {
+            selectedType = type;
+            
+            // Actualizar cards
+            document.querySelectorAll('.type-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            event.target.closest('.type-card').classList.add('active');
+
+            // Actualizar opciones de estilo
+            updateStyleOptions();
+            updateContentSection();
+        }
+
+        function updateStyleOptions() {
+            const config = videoTypeConfigs[selectedType];
+            const styleOptions = document.getElementById('styleOptions');
+            
+            let html = '<div class="form-group"><label>Estilo</label><div class="radio-group">';
+            config.styles.forEach((style, i) => {
+                const value = style.toLowerCase().replace(/\s+/g, '-');
+                html += `
+                    <div class="radio-item">
+                        <input type="radio" id="style-${i}" name="style" value="${value}" ${i === 0 ? 'checked' : ''}>
+                        <label for="style-${i}">${style}</label>
+                    </div>
+                `;
+            });
+            html += '</div></div>';
+
+            html += '<div class="form-group"><label>Efectos</label><div class="checkbox-group">';
+            config.effects.forEach((effect, i) => {
+                const value = effect.toLowerCase().replace(/\s+/g, '-');
+                html += `
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="effect-${i}" name="effects" value="${value}" ${i < 2 ? 'checked' : ''}>
+                        <label for="effect-${i}">${effect}</label>
+                    </div>
+                `;
+            });
+            html += '</div></div>';
+
+            styleOptions.innerHTML = html;
+        }
+
+        function updateContentSection() {
+            const config = videoTypeConfigs[selectedType];
+            const contentSection = document.getElementById('contentSection');
+            const contentOptions = document.getElementById('contentOptions');
+
+            if (!config.content) {
+                contentSection.style.display = 'none';
+                return;
+            }
+
+            contentSection.style.display = 'block';
+            
+            let html = '';
+            config.content.forEach((item, i) => {
+                const itemId = item.toLowerCase().replace(/\s+/g, '-');
+                if (item.includes('Image') || item.includes('Video') || item.includes('Photo') || item.includes('File')) {
+                    html += `
+                        <div class="form-group">
+                            <label for="${itemId}">${item}</label>
+                            <input type="file" id="${itemId}" name="${itemId}" accept="image/*,video/*">
+                            <div class="help-text">Máximo 100MB</div>
+                        </div>
+                    `;
+                } else if (item.includes('Color')) {
+                    html += `
+                        <div class="form-group">
+                            <label for="${itemId}">${item}</label>
+                            <input type="color" id="${itemId}" name="${itemId}" value="#667eea">
+                        </div>
+                    `;
+                } else if (item.includes('Duration')) {
+                    html += `
+                        <div class="form-group">
+                            <label for="${itemId}">${item}</label>
+                            <input type="number" id="${itemId}" name="${itemId}" min="1" max="60" value="5">
+                        </div>
+                    `;
+                } else {
+                    html += `
+                        <div class="form-group">
+                            <label for="${itemId}">${item}</label>
+                            <input type="text" id="${itemId}" name="${itemId}" placeholder="Ingresa ${item}">
+                        </div>
+                    `;
+                }
+            });
+
+            contentOptions.innerHTML = html;
+        }
+
+        function searchSongs() {
+            const query = document.getElementById('songSearch').value;
+            if (!query) {
+                alert('Ingresa un nombre de canción');
+                return;
+            }
+
+            // Simular búsqueda
+            const resultsList = document.getElementById('resultsList');
+            resultsList.innerHTML = `
+                <div style="padding: 20px; text-align: center;">
+                    <div class="spinner"></div>
+                    Buscando "${query}"...
+                </div>
+            `;
+
+            setTimeout(() => {
+                resultsList.innerHTML = `
+                    <div class="preview-grid">
+                        <div class="preview-item" onclick="selectSong('Song 1', 'Artist')">
+                            <strong>Song 1</strong>
+                            <p style="margin-top: 5px; color: #666;">Artist</p>
+                        </div>
+                        <div class="preview-item" onclick="selectSong('Song 2', 'Artist 2')">
+                            <strong>Song 2</strong>
+                            <p style="margin-top: 5px; color: #666;">Artist 2</p>
+                        </div>
+                    </div>
+                `;
+            }, 500);
+        }
+
+        function selectSong(title, artist) {
+            document.getElementById('songSearch').value = `${title} - ${artist}`;
+            document.getElementById('searchResults').style.display = 'none';
+        }
+
+        function toggleCollapsible(event) {
+            event.target.closest('.collapsible-section').querySelector('.collapsible-content').classList.toggle('active');
+            event.target.closest('.collapsible-section').querySelector('.collapsible-toggle').classList.toggle('active');
+        }
+
+        // Actualizar valores de rangos
+        document.addEventListener('input', (e) => {
+            if (e.target.id === 'brightness') {
+                document.getElementById('brightnessValue').textContent = e.target.value + '%';
+            }
+            if (e.target.id === 'saturation') {
+                document.getElementById('saturationValue').textContent = e.target.value + '%';
+            }
+            if (e.target.id === 'contrast') {
+                document.getElementById('contrastValue').textContent = e.target.value + '%';
+            }
+        });
+
+        // Enviar formulario
+        document.getElementById('videoForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData(e.target);
+            const data = {
+                videoType: selectedType,
+                title: document.getElementById('videoTitle').value,
+                description: document.getElementById('description').value,
+                song: document.getElementById('songSearch').value,
+                quality: document.getElementById('quality').value,
+                fps: document.getElementById('fps').value,
+                duration: document.getElementById('duration').value,
+                format: document.getElementById('format').value,
+                colorGrading: document.getElementById('colorGrading').value,
+                brightness: document.getElementById('brightness').value,
+                saturation: document.getElementById('saturation').value,
+                contrast: document.getElementById('contrast').value,
+                timestamp: new Date()
+            };
+
+            // Guardar en localStorage
+            let submissions = JSON.parse(localStorage.getItem('videoSubmissions') || '[]');
+            submissions.push(data);
+            localStorage.setItem('videoSubmissions', JSON.stringify(submissions));
+
+            // Mostrar estado
+            const statusDiv = document.getElementById('status');
+            statusDiv.className = 'status success';
+            statusDiv.innerHTML = `
+                <strong>✅ ¡Video en generación!</strong><br>
+                <p>Tipo: <strong>${selectedType.toUpperCase()}</strong></p>
+                <p>Título: <strong>${data.title}</strong></p>
+                <p>Tiempo estimado: <strong>5-20 minutos</strong></p>
+                <p><small>ID de trabajo: ${Date.now()}</small></p>
+            `;
+
+            setTimeout(() => {
+                e.target.reset();
+                updateContentSection();
+                statusDiv.classList.remove('success');
+            }, 3000);
+        });
+
+        // Inicializar
+        updateStyleOptions();
+    </script>
+</body>
+</html>
